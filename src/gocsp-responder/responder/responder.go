@@ -121,8 +121,8 @@ const (
 )
 
 type IndexEntry struct {
-	Status byte
-	Serial *big.Int
+	Status            byte
+	Serial            *big.Int
 	ExpirationTime    time.Time
 	RevocationTime    time.Time
 	RevocationReason  string
@@ -423,8 +423,8 @@ func (self *OCSPResponder) Serve() error {
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	// Generate an access log
-//	log.Println(r.Host, r.RemoteAddr, r.Header["X-Forwarded-For"], r.Method, r.URL.Path,
-//		r.Header["Content-Length"], r.Header["User-Agent"])
+	//	log.Println(r.Host, r.RemoteAddr, r.Header["X-Forwarded-For"], r.Method, r.URL.Path,
+	//		r.Header["Content-Length"], r.Header["User-Agent"])
 
 	// Switch based on method
 	switch r.Method {
