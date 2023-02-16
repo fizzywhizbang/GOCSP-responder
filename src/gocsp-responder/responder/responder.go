@@ -54,7 +54,7 @@ func Responder() *OCSPResponder {
 		LogFile:      "/var/log/gocsp-responder.log",
 		LogToStdout:  false,
 		Strict:       false,
-		Port:         8888,
+		Port:         8088,
 		Address:      "",
 		Ssl:          false,
 		IndexEntries: nil,
@@ -122,7 +122,7 @@ const (
 
 type IndexEntry struct {
 	Status            byte
-	Serial            *big.Int
+	Serial            string
 	ExpirationTime    time.Time
 	RevocationTime    time.Time
 	RevocationReason  string
@@ -157,7 +157,7 @@ func (self *OCSPResponder) parseIndex() error {
 			ln := strings.Split(s.Text(), "\t")
 			ie.Status = []byte(ln[0])[0]
 			ie.ExpirationTime, _ = time.Parse(t, ln[1])
-			ie.Serial, _ = new(big.Int).SetString(ln[3], 16)
+			ie.Serial = ln[3]
 			ie.DistinguishedName = ln[5]
 
 			if ie.Status == StatusValid {
@@ -185,16 +185,17 @@ func (self *OCSPResponder) parseIndex() error {
 // updates the index if necessary and then searches for the given index in the
 // index list
 func (self *OCSPResponder) getIndexEntry(s *big.Int) (*IndexEntry, error) {
-	log.Println(fmt.Sprintf("Looking for serial 0x%x", s))
+	log.Println(fmt.Sprintf("Looking for serial %s", s))
 	if err := self.parseIndex(); err != nil {
 		return nil, err
 	}
 	for _, ent := range self.IndexEntries {
-		if ent.Serial.Cmp(s) == 0 {
+		fmt.Println(ent.Serial)
+		if ent.Serial == s.String() {
 			return &ent, nil
 		}
 	}
-	return nil, errors.New(fmt.Sprintf("Serial 0x%x not found", s))
+	return nil, errors.New(fmt.Sprintf("Serial %s not found", s))
 }
 
 // parses a pem encoded x509 certificate
@@ -218,9 +219,13 @@ func parseKeyFile(filename string) (interface{}, error) {
 		return nil, err
 	}
 	block, _ := pem.Decode(kt)
+	// key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
-		return nil, err
+		key, err = x509.ParsePKCS1PrivateKey(block.Bytes)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return key, nil
 }
@@ -423,8 +428,8 @@ func (self *OCSPResponder) Serve() error {
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	// Generate an access log
-	//	log.Println(r.Host, r.RemoteAddr, r.Header["X-Forwarded-For"], r.Method, r.URL.Path,
-	//		r.Header["Content-Length"], r.Header["User-Agent"])
+	log.Println(r.Host, r.RemoteAddr, r.Header["X-Forwarded-For"], r.Method, r.URL.Path,
+		r.Header["Content-Length"], r.Header["User-Agent"])
 
 	// Switch based on method
 	switch r.Method {
