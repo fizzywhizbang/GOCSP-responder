@@ -11,7 +11,7 @@ Refer to RFC 6960: https://tools.ietf.org/html/rfc6960
 
 Building
 --------
-This was confirmed building with Go 1.10.2, thought it was originally built with 1.7rc6. Your milage may vary with other versions.  
+This was confirmed building with Go 1.20. Your milage may vary with other versions.  
 
 1. Clone the repo  
 2. cd into repo  
@@ -21,19 +21,18 @@ This was confirmed building with Go 1.10.2, thought it was originally built with
 Features
 --------
 - Supports HTTP GET and POST requests  
-- Meant to work seamlessly with easy-rsa  
+- Meant to work with zca https://github.com/fizzywhizbang/zCA
 - Nonce extension supported (will implement more if needed)  
 - SSL support (not recommended)  
-- It works and doesn't have memory corruption bugs \*cough\* *[openca-ocspd](https://github.com/openca/openca-ocspd/issues/17)* \*cough\*  
 
 Limitations
 -----------
 - Only works with RSA keys (I think)
-- Only PKCS1 (for keys) and PEM (for certs) supported. These are easy-rsa defaults
+- Only PKCS1 (for keys) and PEM (for certs) supported.
   
 Tests
 -----
-This has been tested and working with the `openssl ocsp` command, Chrome 55.0.2883.95, Firefox 50.1.0, and Safari 10.0.2. It should still work for newer versions of these browsers. I didn't test IE/Edge. If it doesn't work for those, submit an issue.  
+This has been tested and working with the `openssl ocsp` command, Chrome 109, Edge 110, Firefox 109, and Safari 16.3. It should still work for newer versions of these browsers.  
 
 Options
 -------
