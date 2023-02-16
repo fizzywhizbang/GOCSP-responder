@@ -113,15 +113,14 @@ func (self *OCSPResponder) makeHandler() func(w http.ResponseWriter, r *http.Req
 	}
 }
 
-// I only know of two types, but more can be added later
 const (
-	StatusValid   = 'V'
-	StatusRevoked = 'R'
-	StatusExpired = 'E'
+	StatusValid   = "V"
+	StatusRevoked = "R"
+	StatusExpired = "E"
 )
 
 type IndexEntry struct {
-	Status            byte
+	Status            string
 	Serial            string
 	ExpirationTime    time.Time
 	RevocationTime    time.Time
@@ -155,7 +154,7 @@ func (self *OCSPResponder) parseIndex() error {
 		for s.Scan() {
 			var ie IndexEntry
 			ln := strings.Split(s.Text(), "\t")
-			ie.Status = []byte(ln[0])[0]
+			ie.Status = ln[0]
 			ie.ExpirationTime, _ = time.Parse(t, ln[1])
 			ie.Serial = ln[3]
 			ie.DistinguishedName = ln[5]
@@ -321,7 +320,7 @@ func (self *OCSPResponder) verify(rawreq []byte) ([]byte, error) {
 			}
 		} else if ent.Status == StatusExpired {
 			log.Print("This certificate is expired")
-			status = ocsp.Good
+			status = ocsp.RemoveFromCRL //the same as expired
 		} else if ent.Status == StatusValid {
 			log.Print("This certificate is valid")
 			status = ocsp.Good
